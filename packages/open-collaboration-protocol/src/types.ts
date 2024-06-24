@@ -16,7 +16,12 @@ export interface CreateRoomResponse {
     loginToken?: Token;
 }
 
-export interface JoinRoomResponse {
+export interface AccessGranted {
+    accessGranted: boolean;
+}
+
+export interface JoinRoomResponse extends AccessGranted {
+    accessGranted: true;
     roomId: Id;
     roomToken: Token;
     loginToken?: Token;
@@ -37,9 +42,17 @@ export interface User {
     email?: string
 }
 
-export interface JoinResponse {
+export interface JoinGrantedResponse extends AccessGranted {
+    accessGranted: true
     workspace: Workspace
 }
+
+export interface JoinDeniedResponse extends AccessGranted {
+    accessGranted: false
+    reason: string
+}
+
+export type JoinResponse = JoinGrantedResponse | JoinDeniedResponse;
 
 export interface Peer {
     id: Id

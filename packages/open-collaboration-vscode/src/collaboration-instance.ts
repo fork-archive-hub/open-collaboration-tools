@@ -85,7 +85,7 @@ export class DisposablePeer implements vscode.Disposable {
         const options: vscode.ThemableDecorationAttachmentRenderOptions = {
             contentText: this.peer.name,
             backgroundColor: color,
-            textDecoration: `none; position: absolute; border-radius: 0.15rem; padding:0px 0.5ch; display: inline-block; 
+            textDecoration: `none; position: absolute; border-radius: 0.15rem; padding:0px 0.5ch; display: inline-block;
                                 pointer-events: none; color: #000; font-size: 0.7rem; z-index: 10; font-weight: bold;${textDecoration ?? ''}`
         }
         return vscode.window.createTextEditorDecorationType({
@@ -105,7 +105,7 @@ export class DisposablePeer implements vscode.Disposable {
 
 let colorIndex = 0;
 const defaultColors: ([number, number, number] | string)[] = [
-    'oct.user.yellow', // Yellow 
+    'oct.user.yellow', // Yellow
     'oct.user.green', // Green
     'oct.user.magenta', // Magenta
     'oct.user.lightGreen', // Light green
@@ -174,7 +174,7 @@ export type CollaborationInstanceFactory = (options: CollaborationInstanceOption
 export class CollaborationInstance implements vscode.Disposable {
 
     static Current: CollaborationInstance | undefined;
-    
+
     private yjs: Y.Doc = new Y.Doc();
     private yjsAwareness = new awarenessProtocol.Awareness(this.yjs);
     private identity = new Deferred<types.Peer>();
@@ -193,7 +193,7 @@ export class CollaborationInstance implements vscode.Disposable {
 
     private readonly onDidUsersChangeEmitter: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
     readonly onDidUsersChange: vscode.Event<void> = this.onDidUsersChangeEmitter.event;
-    
+
     private readonly onDidDisposeEmitter: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
     readonly onDidDispose: vscode.Event<void> = this.onDidDisposeEmitter.event;
 
@@ -247,11 +247,15 @@ export class CollaborationInstance implements vscode.Disposable {
             );
             const roots = vscode.workspace.workspaceFolders ?? [];
             return result === 'Allow' ? {
+                accessGranted: true,
                 workspace: {
                     name: vscode.workspace.name ?? 'Collaboration',
                     folders: roots.map(e => e.name)
                 }
-            } : undefined;
+            } : {
+                accessGranted: false,
+                reason: 'Access denied'
+            };
         });
         connection.room.onJoin(async (_, peer) => {
             this.peers.set(peer.id, new DisposablePeer(this.yjsAwareness, peer));

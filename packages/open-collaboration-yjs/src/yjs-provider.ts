@@ -101,11 +101,11 @@ export class OpenCollaborationYjsProvider extends ObservableV2<string> {
         awarenessProtocol.removeAwarenessStates(this.awareness, [this.doc.clientID], 'client disconnected');
     }
 
-    private encodeBase64(encoder: encoding.Encoder): string {
+    protected encodeBase64(encoder: encoding.Encoder): string {
         return Buffer.from(encoding.toUint8Array(encoder)).toString('base64');
     }
 
-    private decodeBase64(data: string): decoding.Decoder {
+    protected decodeBase64(data: string): decoding.Decoder {
         return decoding.createDecoder(Buffer.from(data, 'base64'));
     }
 }

@@ -214,10 +214,16 @@ export class CollaborationServer {
                     throw new Error(`Room with requested id ${roomId} does not exist`);
                 }
                 const result = await this.roomManager.requestJoin(room, user!);
-                const response: types.JoinRoomResponse = {
+                const response: types.JoinRoomResponse | types.JoinDeniedResponse = result.response.accessGranted ?
+                {
+                    accessGranted: true,
                     roomId: room.id,
                     roomToken: result.jwt,
                     workspace: result.response.workspace
+                } :
+                {
+                    accessGranted: false,
+                    reason: result.response.reason
                 };
                 res.send(response);
             } catch (err) {

@@ -60,7 +60,7 @@ export class CollaborationRoomService {
             roomId: roomClaim.roomId
         });
         await vscode.env.clipboard.writeText(roomClaim.roomId);
-        vscode.window.showInformationMessage(`Joined room '${roomClaim.roomId}'. ID was automatically written to clipboard.`, 'Copy to Clipboard').then(value => { 
+        vscode.window.showInformationMessage(`Joined room '${roomClaim.roomId}'. ID was automatically written to clipboard.`, 'Copy to Clipboard').then(value => {
             if (value === 'Copy to Clipboard') {
                 vscode.env.clipboard.writeText(roomClaim.roomId);
             }
@@ -68,7 +68,7 @@ export class CollaborationRoomService {
         this.onDidJoinRoomEmitter.fire(instance);
         return instance;
     }
-    
+
     async joinRoom(connectionProvider: ConnectionProvider, roomId?: string): Promise<void> {
         if (!roomId) {
             roomId = await vscode.window.showInputBox({ placeHolder: 'Enter the room ID' })
@@ -76,6 +76,10 @@ export class CollaborationRoomService {
         vscode.window.withProgress({location: vscode.ProgressLocation.Notification, title: 'Joining Room'}, async () => {
             if (roomId && connectionProvider) {
                 const roomClaim = await connectionProvider.joinRoom(roomId);
+                if(roomClaim.accessGranted === false) {
+                    vscode.window.showErrorMessage(`Access denied: ${roomClaim.reason}`);
+                    return;
+                }
                 if (roomClaim.loginToken) {
                     const userToken = roomClaim.loginToken;
                     await this.context.secrets.store(OCT_USER_TOKEN, userToken);
