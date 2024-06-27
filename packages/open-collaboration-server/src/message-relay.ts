@@ -8,6 +8,7 @@ import { injectable } from 'inversify';
 import { BroadcastMessage, Deferred, NotificationMessage, RequestMessage, ResponseErrorMessage, ResponseMessage } from 'open-collaboration-rpc';
 import { Peer } from './types';
 import { nanoid } from 'nanoid';
+import { LOGGER } from './collaboration-server';
 
 export interface RelayedRequest {
     id: string | number;
@@ -68,8 +69,8 @@ export class MessageRelay {
                     peer.channel.sendMessage(message);
                 }
             }
-        } catch (err) {
-            console.error(err);
+        } catch (error) {
+            LOGGER.error({ error });
         }
     }
 

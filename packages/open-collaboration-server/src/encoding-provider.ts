@@ -6,6 +6,7 @@
 
 import { injectable } from "inversify";
 import { JsonMessageEncoding, MessageEncoding } from "open-collaboration-rpc";
+import { LOGGER } from "./collaboration-server";
 
 @injectable()
 export class EncodingProvider {
@@ -13,7 +14,7 @@ export class EncodingProvider {
     getEncoding(encoding: string): MessageEncoding {
         switch (encoding) {
             case 'json': return JsonMessageEncoding;
-            default: throw new Error(`Unsupported encoding: ${encoding}`);
+            default: throw LOGGER.logAndCreateError({ message: `Unsupported encoding: ${encoding}` });
         }
     }
 
