@@ -19,6 +19,7 @@ import { User } from './types';
 import { ErrorMessage, MessageEncoding } from 'open-collaboration-rpc';
 import { EncodingProvider } from './encoding-provider';
 import * as types from 'open-collaboration-protocol';
+import { OAuthEnpoint } from 'open-collaboration-server-oauth/lib/oauth-endpoint';
 
 @injectable()
 export class CollaborationServer {
@@ -38,10 +39,14 @@ export class CollaborationServer {
     @inject(PeerFactory)
     protected readonly peerFactory: PeerFactory;
 
+    @inject(OAuthEnpoint)
+    protected readonly oauthEndpoint: OAuthEnpoint;
+
     protected simpleLogin = true;
 
     startServer(args: Record<string, unknown>): void {
-        const httpServer = http.createServer(this.setupApiRoute());
+        const app = this.setupApiRoute()
+        const httpServer = http.createServer(app);
         const wsServer = new ws.Server({
             path: '/websocket',
             server: httpServer
@@ -79,6 +84,8 @@ export class CollaborationServer {
             }
         });
         httpServer.listen(Number(args.port), String(args.hostname));
+        this.oauthEndpoint.onStart(app, String(args.hostname), Number(args.port),);
+        this.oauthEndpoint.onDidSuccessfullyAuthenticate = (token, user) => this.credentials.confirmUser(token, user)
         console.log('Open Collaboration Server listening on ' + args.hostname + ':' + args.port);
     }
 
@@ -112,7 +119,7 @@ export class CollaborationServer {
         }
     }
 
-    protected setupApiRoute(): express.Application {
+    protected setupApiRoute(): express.Express {
         const app = express();
         app.use(express.json());
         app.use((_, res, next) => {
